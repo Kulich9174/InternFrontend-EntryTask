@@ -4,9 +4,10 @@
   let toCurrency:string = 'USD';    
   let sum:number = 1;               
   let convertedValue: string = '0'; 
+  const url='https://open.er-api.com/v6/latest/USD'
   
 
-  fetch('https://open.er-api.com/v6/latest/USD')
+  fetch(url)
     .then(response => response.json())
     .then(data => {
       rates = data.rates;
