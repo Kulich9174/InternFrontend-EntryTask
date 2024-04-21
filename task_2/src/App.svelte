@@ -1,47 +1,93 @@
 <script lang="ts">
-  import svelteLogo from './assets/svelte.svg'
-  import viteLogo from '/vite.svg'
-  import Counter from './lib/Counter.svelte'
+  let rates: { [key: string]: number } = {};
+  let fromCurrency:string = 'USD';  
+  let toCurrency:string = 'USD';    
+  let sum:number = 1;               
+  let convertedValue: string = '0'; 
+  
+
+  fetch('https://open.er-api.com/v6/latest/USD')
+    .then(response => response.json())
+    .then(data => {
+      rates = data.rates;
+    })
+    .catch(error => console.error('Ошибка:', error));
+
+    function calculateConversion() {
+    if (rates[fromCurrency] && rates[toCurrency]) {
+      convertedValue = (sum * (rates[toCurrency] / rates[fromCurrency])).toFixed(3);
+    }
+  }
+  $: calculateConversion(), [fromCurrency, toCurrency, sum];
 </script>
 
 <main>
-  <div>
-    <a href="https://vitejs.dev" target="_blank" rel="noreferrer">
-      <img src={viteLogo} class="logo" alt="Vite Logo" />
-    </a>
-    <a href="https://svelte.dev" target="_blank" rel="noreferrer">
-      <img src={svelteLogo} class="logo svelte" alt="Svelte Logo" />
-    </a>
+  <h1>Task</h1>
+  <div class="container">
+    <div class='container_currency'>
+        <label class="label">
+          <span>Выбери валюту конвертации </span>
+          <select bind:value={fromCurrency}>
+            {#each Object.keys(rates) as currency}
+              <option value={currency}>{currency}</option>
+            {/each}
+          </select>
+        </label>
+        <div class='container_inputs'>
+          <label>
+            <span>Введите сумму для конвертации:</span>
+            <input type='number' class="input" bind:value={sum} min="0"/>
+          </label>
+          <label>
+            <span>Введите сумму для конвертации:</span>
+            <input type='number' class="input" bind:value={sum} min="0"/>
+          </label>
+        </div>
+    </div>
+    <div class='container_currency'>
+      <label class="label">
+        <span>Выбери валюту</span>
+        <select bind:value={toCurrency}>
+          {#each Object.keys(rates) as currency}
+            <option value={currency}>{currency}</option>
+          {/each}
+        </select>
+      </label>
+      <p class="text">Получится: {convertedValue} {toCurrency}</p>
+    </div>
   </div>
-  <h1>Vite + Svelte</h1>
 
-  <div class="card">
-    <Counter />
-  </div>
-
-  <p>
-    Check out <a href="https://github.com/sveltejs/kit#readme" target="_blank" rel="noreferrer">SvelteKit</a>, the official Svelte app framework powered by Vite!
-  </p>
-
-  <p class="read-the-docs">
-    Click on the Vite and Svelte logos to learn more
-  </p>
 </main>
 
 <style>
-  .logo {
-    height: 6em;
-    padding: 1.5em;
-    will-change: filter;
-    transition: filter 300ms;
+  .container{
+    display: grid;
+    grid-template-columns: 50% 50%;
+    width: 100%;
+    min-width:700px;
+    padding-bottom:24px ;
+    justify-items: center;
+    align-items: center;
   }
-  .logo:hover {
-    filter: drop-shadow(0 0 2em #646cffaa);
+  .label{
+    align-items: center;
+    gap:8px;
+    justify-content: space-between;
+    display: flex;
   }
-  .logo.svelte:hover {
-    filter: drop-shadow(0 0 2em #ff3e00aa);
+  .container_currency{
+    align-items: start;
+    display: flex;
+    flex-direction: column;
   }
-  .read-the-docs {
-    color: #888;
+  .input{
+    max-width: 50px;
+  }
+  .text{
+    margin:0;
+  }
+  .container_inputs{
+    display: flex;
+    flex-direction: column;
   }
 </style>
